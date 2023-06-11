@@ -12,7 +12,7 @@ module.exports = app => {
     app.use("/api/carts", router);
     router.post("/", carrito.addCart.bind(carrito));
     router.get("/:cid", carrito.productCart.bind(carrito));
-    router.get("/:cid/product/:pid", carrito.updateCart.bind(carrito));
+    router.post("/:cid/product/:pid", carrito.updateCart.bind(carrito));
 
 
     }

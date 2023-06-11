@@ -25,9 +25,9 @@ class ProductManager {
                 let productLimit = this.products.slice(0, limit);
                 res.status(200).send(productLimit);
             }
-            res.send(this.products)
+            return res.status(200).send(this.products)
         } catch (error){
-            res.status(500).send("Problema en el Servidor");
+            return res.status(500).send("Problema en el Servidor");
         }
 
 
@@ -44,7 +44,7 @@ class ProductManager {
             return res.status(200).send(productx);
         }
     }catch (error){
-        res.status(500).send("Problema en el Servidor");
+            return res.status(500).send("Problema en el Servidor");
         
         }
     }  
@@ -63,11 +63,11 @@ class ProductManager {
             const existe = this.products.find(product => product.code === code)
     
             if (existe) {
-                return res.status(404).send("Ya eciste un producto igual")
+                return res.status(404).send("Ya existe un producto igual")
                 
             } 
             if (!title||!description||!price||!thumbnail||!code||!stock){
-                console.log(`Todos los campos son obligatorios, verificar el producto ${title}`)
+                return res.status(404).send(`Todos los campos son obligatorios, verificar el producto ${title}`)
             }
              const newProduct = {
                 id: this.valadateId(this.products),
@@ -80,8 +80,8 @@ class ProductManager {
             };   
             this.products.push(newProduct)
             res.send(this.products);
-            console.log("agregado", newProduct)
-            await fs.promises.writeFile(this.path, JSON.stringify(this.products)); 
+            await fs.promises.writeFile(this.path, JSON.stringify(this.products,null,2));
+            return res.status(200).send("Producto agregado") 
         } catch(error){
             res.status(500).send("Problema en el Servidor");
             }
@@ -94,42 +94,44 @@ class ProductManager {
  
 
 
-    async updateProduct(id, updatedFields) {
+    async updateProduct(req,res) {
         try {
+            const { pid } = req.params;
+            const update = req.body;
+
             const contenido = await fs.promises.readFile(this.path, "utf-8");
             const products = JSON.parse(contenido);
-            const productIndex = products.findIndex(product => product.id === id);
+            const productIndex = products.findIndex(product => product.id === Number(pid));
+
         if (productIndex === -1) {
-            console.log("No se encontró el producto");
-            return;
+            return res.status(404).send("No se encontro el producto") ;
         }
-        const updatedProduct = { ...products[productIndex], ...updatedFields };
+
+        const updatedProduct = { ...products[productIndex], ...update };
         products[productIndex] = updatedProduct;
         await fs.promises.writeFile(this.path, JSON.stringify(products));
-        console.log("Producto actualizado correctamente");
+        return res.status(200).send("Producto actualizado correctamente");
         } 
         catch (error) {
-            res.status(500).send("Problema en el Servidor");
+        return res.status(500).send("Problema en el Servidor");
         }
     }
 
-    async deleteProduct(res,req,id) {
-        try {
-
-            
-        const idPar = req.params.pid;
-        const productx = this.products.findIndex(product => product.id === parseInt(idPar))
+    async deleteProduct(req,res) {
+        try {           
+        const { pid } = req.params;
+        const productIndex = this.products.findIndex(product => product.id === Number(pid))
         
-        if (productx === -1) {
+        if (productIndex === -1) {
             return res.status(404).send("No se encontró el producto");
         }
         
-        this.products.splice(productx,1);
+        this.products.splice(productIndex,1);
         await fs.promises.writeFile(this.path, JSON.stringify(this.products));
         return res.status(200).send(`Producto eliminado`);
 
         } catch (error) {
-        res.status(500).send("Problema en el Servidor");
+        return res.status(500).send(`Problema en el Servidor`);
         }
     }
 

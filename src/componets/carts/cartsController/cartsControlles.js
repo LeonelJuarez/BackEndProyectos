@@ -19,17 +19,18 @@ class CartController {
 
 
     valadateId() {
-        return ++this.id;
+        return this.id++;
     }
     async addCart(req,res){ // Post
         try{
             const newCart = {
                 id: this.valadateId(),
-                product : []
+                products : []
                 
             }
             this.cart.push(newCart);           
             await fs.promises.writeFile(this.path,JSON.stringify(this.cart, null,2));
+            console.log("carrito agregado")
             res.status(200).send(this.cart);
         }catch(error){
             res.status(500).send("Problema en el servidor")
@@ -51,6 +52,7 @@ class CartController {
 
 
     async updateCart(req,res){
+
         try{
             const {cid,pid}= req.params;
 
@@ -60,15 +62,17 @@ class CartController {
             }
 
             //Verificamos si el producto existe en el carrito
-            const exist = cart.product.find(product => product.id === Number(pid));
-            if(!exist){
+            const exist = cart.products.find(product => product.id === Number(pid));
+            if(exist){
                 exist.quantity++;
             }else{
                 //Si no existe se agrega al carrito
-                cart.product.push({
+                cart.products.push({
                     id: Number(pid),
                     quantity:1
-                })
+                }
+                )
+                console.log("Producto agregado");
             }
 
             //Guardamos en Cart.Json
