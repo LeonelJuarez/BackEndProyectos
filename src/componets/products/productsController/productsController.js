@@ -23,7 +23,7 @@ class ProductManager {
             let { limit } = req.query;
             if(limit){
                 let productLimit = this.products.slice(0, limit);
-                res.status(200).send(productLimit);
+                return res.status(200).send(productLimit);
             }
             return res.status(200).send(this.products)
         } catch (error){
@@ -63,7 +63,7 @@ class ProductManager {
             const existe = this.products.find(product => product.code === code)
     
             if (existe) {
-                return res.status(404).send("Ya existe un producto igual")
+                return res.status(400).send("Ya existe un producto igual")
                 
             } 
             if (!title||!description||!price||!thumbnail||!code||!stock){
@@ -79,11 +79,11 @@ class ProductManager {
                 stock
             };   
             this.products.push(newProduct)
-            res.send(this.products);
             await fs.promises.writeFile(this.path, JSON.stringify(this.products,null,2));
-            return res.status(200).send("Producto agregado") 
+            
+            return res.status(200).send(`Producto agregado`) 
         } catch(error){
-            res.status(500).send("Problema en el Servidor");
+            return res.status(500).send("Problema en el Servidor");
             }
         }
     
@@ -109,8 +109,9 @@ class ProductManager {
 
         const updatedProduct = { ...products[productIndex], ...update };
         products[productIndex] = updatedProduct;
-        await fs.promises.writeFile(this.path, JSON.stringify(products));
-        return res.status(200).send("Producto actualizado correctamente");
+        await fs.promises.writeFile(this.path, JSON.stringify(products,null,2));
+
+        return res.status(200).json({ message:`Producto actualizado correctamente`, product: updatedProduct });
         } 
         catch (error) {
         return res.status(500).send("Problema en el Servidor");

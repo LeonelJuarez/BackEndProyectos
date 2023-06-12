@@ -31,9 +31,9 @@ class CartController {
             this.cart.push(newCart);           
             await fs.promises.writeFile(this.path,JSON.stringify(this.cart, null,2));
             console.log("carrito agregado")
-            res.status(200).send(this.cart);
+            return res.status(200).send(this.cart);
         }catch(error){
-            res.status(500).send("Problema en el servidor")
+            return res.status(500).send("Problema en el servidor")
         }
     }
 
@@ -44,9 +44,9 @@ class CartController {
             if(!cart){
                 return res.status(404).send("Carrito no encontrado");
             }
-            res.status(200).send(cart);
+            return res.status(200).send(cart);
         }catch(error){
-            res.status(500).send("Problema en el servidor");
+            return res.status(500).send("Problema en el servidor");
         }
     }
 
@@ -77,9 +77,9 @@ class CartController {
 
             //Guardamos en Cart.Json
             await fs.promises.writeFile(this.path, JSON.stringify(this.cart,null,2))
-            res.status(200).send(cart);
+            return res.status(200).send(cart);
         }catch(error){
-            res.status(500).send("Problema en el servidor");
+            return res.status(500).send("Problema en el servidor");
         }
     }
 }
